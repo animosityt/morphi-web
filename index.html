@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MPW · Morphi Web</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="en-auth">
+  <div id="toast" class="toast" hidden></div>
+  <div id="conn-banner" class="conn-banner" hidden>Sin conexión con el servidor. Reintentando…</div>
+
+  <!-- ===== login / registro ===== -->
+  <div id="auth" class="auth" hidden>
+    <div class="auth-ornament a1"></div>
+    <div class="auth-ornament a2"></div>
+    <div class="auth-vignette"></div>
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="brand-mark dark">M</span>
+        <span><b>MPW</b><small>MORPHI WEB · PERSONAL</small></span>
+      </div>
+      <h1 id="auth-titulo">Bienvenido al turno.</h1>
+      <p class="auth-sub" id="auth-sub">Ingresá con tu usuario para entrar a tu apartado.</p>
+
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="active" data-tab="login" role="tab">Ingresar</button>
+        <button type="button" data-tab="registro" role="tab">Crear cuenta</button>
+      </div>
+
+      <form id="form-login" class="auth-form" autocomplete="on">
+        <label for="l-usuario">Usuario</label>
+        <input id="l-usuario" name="username" type="text" autocomplete="username" autocapitalize="none" required />
+        <label for="l-clave">Contraseña</label>
+        <input id="l-clave" name="password" type="password" autocomplete="current-password" required />
+        <p class="form-error" id="login-error" role="alert"></p>
+        <button type="submit" class="auth-submit">Ingresar <span class="arrow">→</span></button>
+      </form>
+
+      <form id="form-registro" class="auth-form" autocomplete="on" hidden>
+        <label for="r-nombre">Nombre y apellido</label>
+        <input id="r-nombre" type="text" autocomplete="name" maxlength="60" required />
+        <div class="two-cols">
+          <div>
+            <label for="r-usuario">Usuario</label>
+            <input id="r-usuario" type="text" autocomplete="username" autocapitalize="none" maxlength="30" required />
+          </div>
+          <div>
+            <label for="r-codigo">Código del local</label>
+            <input id="r-codigo" type="password" autocomplete="off" required />
+          </div>
+        </div>
+        <div class="two-cols">
+          <div>
+            <label for="r-clave">Contraseña (mín. 8)</label>
+            <input id="r-clave" type="password" autocomplete="new-password" minlength="8" maxlength="72" required />
+          </div>
+          <div>
+            <label for="r-clave2">Repetir contraseña</label>
+            <input id="r-clave2" type="password" autocomplete="new-password" minlength="8" maxlength="72" required />
+          </div>
+        </div>
+        <label>Tu cargo</label>
+        <div class="cargo-grid">
+          <label class="cargo-card"><input type="radio" name="cargo" value="mozo" required /><span class="cargo-body"><b>Mozo/a</b><small>Salón y comandas</small></span></label>
+          <label class="cargo-card"><input type="radio" name="cargo" value="cocinero" /><span class="cargo-body"><b>Cocina</b><small>Cola de preparación</small></span></label>
+          <label class="cargo-card"><input type="radio" name="cargo" value="cajero" /><span class="cargo-body"><b>Caja</b><small>Cuentas y cobros</small></span></label>
+        </div>
+        <p class="form-error" id="registro-error" role="alert"></p>
+        <button type="submit" class="auth-submit">Crear cuenta e ingresar <span class="arrow">→</span></button>
+      </form>
+      <p class="auth-foot">Acceso exclusivo para personal. Pedile el código del local al encargado.</p>
+    </div>
+  </div>
+
+  <!-- ===== aplicacion ===== -->
+  <main id="app" hidden>
+    <section class="hero">
+      <nav class="nav">
+        <a href="#" class="brand">
+          <span class="brand-mark">M</span>
+          <span><b>MPW</b><small>MORPHI WEB · PERSONAL</small></span>
+        </a>
+        <div class="nav-links"><a href="#floor" id="nav-apartado">Mi apartado</a></div>
+        <div class="nav-user">
+          <div class="service-status" id="service-status"><i></i> <span>Turno activo</span></div>
+          <div class="user-chip"><b id="user-nombre">—</b><small id="user-cargo">—</small></div>
+          <button type="button" class="logout-btn" id="btn-salir">Salir</button>
+        </div>
+      </nav>
+
+      <div class="hero-content">
+        <p class="eyebrow light" id="hero-eyebrow">Panel interno del equipo</p>
+        <h1>De acá<br> Para allá</h1>
+        <p class="hero-copy" id="hero-copy">La mesa, la comanda y la cuenta, cada cosa en su sitio. Lo que cargás se refleja en el resto del equipo.</p>
+        <div class="hero-actions">
+          <a href="#floor" class="button cream" id="hero-cta">Ir a mi apartado <span class="arrow">→</span></a>
+        </div>
+      </div>
+      <div class="hero-meta">
+        <span>MPW · Morphi Web</span>
+        <span>Acceso exclusivo para personal</span>
+        <span>Red local · En servicio</span>
+      </div>
+      <figure class="hero-picture">
+        <img src="img/hero.svg" alt="Ilustración del salón del restaurante con mesas y ventanales" />
+      </figure>
+    </section>
+
+    <!-- 1. salon (mozo) -->
+    <section id="floor" class="section floor-section" hidden>
+      <header class="section-head">
+        <div><p class="eyebrow">Mozos y salón</p><h2>Mapa de mesas</h2></div>
+        <p>Elegí una mesa para cargar el pedido o sumar algo a la cuenta.</p>
+      </header>
+      <div class="floor-layout">
+        <div class="floor-card" id="floor-card">
+          <div class="room-label">SALÓN PRINCIPAL</div>
+          <div class="bar-block">BARRA · 6 LUGARES</div>
+          <div class="kitchen-door">COCINA →</div>
+          <div class="floor-placeholder" id="floor-placeholder"><b>Mesas —</b><span>Cargando datos del sistema…</span></div>
+        </div>
+        <aside class="floor-summary">
+          <p class="eyebrow">Resumen del turno</p>
+          <div class="big-stat"><span id="stat-ocupadas-big">—</span><small>mesas activas</small></div>
+          <div class="summary-row"><span><i class="dot green"></i>Disponibles</span><b id="stat-libres">—</b></div>
+          <div class="summary-row"><span><i class="dot rust"></i>En servicio</span><b id="stat-ocupadas">—</b></div>
+          <div class="summary-row"><span><i class="dot gold"></i>Cubiertos</span><b id="stat-cubiertos">—</b></div>
+          <div class="divider"></div>
+          <p class="note">Tocá una mesa para comenzar. <span class="c-verde">Verde</span>: libre. <span class="c-terracota">Terracota</span>: ocupada.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- 2. cocina (cocinero) -->
+    <section id="kitchen" class="section kitchen-section" hidden>
+      <header class="section-head">
+        <div><p class="eyebrow light">Producción</p><h2>Cola de preparación</h2></div>
+        <div class="queue-count" id="queue-count">0 platos pendientes</div>
+      </header>
+      <div class="queue-grid" id="queue-grid"></div>
+    </section>
+
+    <!-- 3. caja (cajero) -->
+    <section id="billing" class="section billing-section" hidden>
+      <header class="section-head">
+        <div><p class="eyebrow">Caja</p><h2>Cerrar una mesa</h2></div>
+        <p>Repasá los consumos antes de cobrar. Al cerrar, la mesa vuelve a quedar disponible.</p>
+      </header>
+      <div class="billing-layout">
+        <div class="table-picker">
+          <label>SELECCIONAR MESA ACTIVA</label>
+          <div class="bill-table-list" id="bill-list"></div>
+        </div>
+        <div class="receipt" id="receipt"></div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer-brand"><span>MPW</span><small>Morphi Web</small></div>
+      <div class="footer-info"><b>Herramienta interna de trabajo</b><p>Salón · Cocina · Caja</p></div>
+      <div class="footer-status"><span><i></i> Sistema operativo</span><a href="#">Volver arriba ↑</a></div>
+    </footer>
+
+    <div id="modal-root"></div>
+  </main>
+  <script src="js/app.js"></script>
+</body>
+</html>
