@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-// ---- Configuración del local (base de datos, código de registro, sesión) ----
 if (!is_file(__DIR__ . '/config.php')) {
     http_response_code(500);
     header('Content-Type: application/json; charset=utf-8');
@@ -12,7 +11,6 @@ require_once __DIR__ . '/config.php';
 
 const CARGOS = ['mozo', 'cocinero', 'cajero', 'encargado'];
 
-// Qué apartados (áreas) puede usar cada cargo. Para cambiar permisos, se edita SOLO acá.
 const AREAS_POR_CARGO = [
     'mozo'      => ['salon'],
     'cocinero'  => ['cocina'],
@@ -24,7 +22,6 @@ date_default_timezone_set('America/Argentina/Buenos_Aires');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
-// ---- Sesión: se lee y se suelta enseguida para no trabar los pedidos simultáneos ----
 ini_set('session.use_strict_mode', '1');
 ini_set('session.gc_maxlifetime', (string) SESION_SEGUNDOS);
 session_name('MORPHI_SESION');
@@ -103,7 +100,6 @@ function entero_positivo(mixed $valor, string $campo): int
     return $n;
 }
 
-// ---- Empleado logueado y permisos por cargo ----
 function empleado_actual(): ?array
 {
     static $listo = false, $emp = null;
@@ -113,13 +109,12 @@ function empleado_actual(): ?array
             $st = db()->prepare('SELECT id, nombre, usuario, cargo FROM empleados WHERE id = ? AND activo = 1');
             $st->execute([(int) $_SESSION['empleado_id']]);
             $fila = $st->fetch();
-            $emp = $fila ?: null; // si lo desactivaron, la sesión deja de valer
+            $emp = $fila ?: null;
         }
     }
     return $emp;
 }
 
-/** Corta con 401/403 si no hay sesión o el cargo no tiene acceso a alguna de las áreas pedidas. */
 function exigir_area(string ...$areas): array
 {
     $emp = empleado_actual();
@@ -133,7 +128,6 @@ function exigir_area(string ...$areas): array
     return $emp;
 }
 
-/** Ejecuta el endpoint y convierte cualquier error en una respuesta JSON. */
 function manejar(callable $endpoint): void
 {
     try {
@@ -146,7 +140,6 @@ function manejar(callable $endpoint): void
     }
 }
 
-/** Corre $fn dentro de una transacción: si algo falla, no se guarda nada. */
 function transaccion(callable $fn): mixed
 {
     $pdo = db();

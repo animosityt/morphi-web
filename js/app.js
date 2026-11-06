@@ -1,15 +1,10 @@
-/* Morphi Web - front-end en JavaScript nativo (sin frameworks).
- * Todo dato (mesas, carta, cola, cuentas, totales) viene de la API PHP / MySQL.
- * Acá NO se calcula ningún importe: solo se muestran los que devuelve SQL.
- * Cada empleado entra únicamente a su apartado según su cargo; el servidor
- * lo vuelve a verificar en cada pedido. */
 (function () {
   'use strict';
 
   var POLL_MS = 3000;
   var moneda = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
 
-  var APARTADO = { mozo: 'floor', cocinero: 'kitchen', cajero: 'billing', encargado: 'floor' }; // primer apartado
+  var APARTADO = { mozo: 'floor', cocinero: 'kitchen', cajero: 'billing', encargado: 'floor' };
   var AREAS = {
     mozo: ['floor'], cocinero: ['kitchen'], cajero: ['billing'],
     encargado: ['floor', 'kitchen', 'billing']
@@ -39,7 +34,6 @@
   var $ = function (id) { return document.getElementById(id); };
   var noop = function () {};
 
-  /** ¿El empleado logueado tiene acceso a este apartado? (el servidor lo vuelve a verificar) */
   function tiene(area) {
     return !!estado.empleado && AREAS[estado.empleado.cargo].indexOf(area) !== -1;
   }
@@ -49,7 +43,7 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function dinero(valor) { return moneda.format(Number(valor)); } // solo formato visual
+  function dinero(valor) { return moneda.format(Number(valor)); }
   function cambio(clave, datos) {
     var f = JSON.stringify(datos);
     if (firmas[clave] === f) return false;
@@ -57,7 +51,6 @@
     return true;
   }
 
-  /* ---------- Comunicación con la API ---------- */
   function setOnline(ok) {
     $('conn-banner').hidden = ok;
     $('service-status').classList.toggle('offline', !ok);
@@ -75,7 +68,6 @@
       setOnline(true);
       return res.json().catch(function () { return null; }).then(function (datos) {
         if (res.status === 401 && estado.empleado) {
-          // La sesión venció o la cuenta fue desactivada.
           mostrarAuth();
           aviso('Tu sesión terminó. Ingresá de nuevo.', true);
         }
@@ -100,9 +92,6 @@
     toastTimer = setTimeout(function () { t.hidden = true; }, 3400);
   }
 
-  /* ---------- Pop-up de confirmación ----------
-   * Botón ovalado grande "Confirmar?" = confirma.
-   * Un clic en cualquier otro lado de la pantalla (o Esc) = cancela. */
   function confirmar(titulo, detalle) {
     return new Promise(function (resolve) {
       var bg = document.createElement('div');
@@ -138,7 +127,6 @@
     });
   }
 
-  /* ---------- Login / Registro ---------- */
   function mostrarAuth() {
     estado.empleado = null;
     clearInterval(timer);
@@ -251,7 +239,6 @@
     });
   });
 
-  /* ---------- 1. SALÓN: mapa de mesas (mozo) ---------- */
   function cargarCarta() {
     return api('api/productos.php').then(function (d) { estado.productos = d.productos; });
   }
@@ -302,7 +289,6 @@
     if (b) abrirComanda(Number(b.dataset.id));
   });
 
-  /* ---------- Formulario de comanda (modal) ---------- */
   function abrirComanda(mesaId) {
     var mesa = estado.mesas.filter(function (m) { return m.id === mesaId; })[0];
     if (!mesa) return;
@@ -377,7 +363,6 @@
     var items = Object.keys(estado.borrador).map(function (id) {
       return { producto_id: Number(id), cantidad: estado.borrador[id] };
     });
-    // Validación básica en pantalla (el servidor la repite igual).
     if (!items.length) {
       $('modal-error').textContent = 'Seleccioná al menos un producto antes de enviar el pedido.';
       return;
@@ -405,7 +390,6 @@
     });
   }
 
-  /* ---------- 2. COCINA: cola de preparación (cocinero) ---------- */
   function cargarCocina() {
     return api('api/cocina.php').then(function (d) {
       $('queue-count').textContent = d.cola.length + (d.cola.length === 1 ? ' plato pendiente' : ' platos pendientes');
@@ -446,7 +430,6 @@
     });
   });
 
-  /* ---------- 3. CAJA: cierre de mesa (cajero) ---------- */
   function pintarListaCaja() {
     var ocupadas = estado.mesas.filter(function (m) { return m.ocupada; });
     if (!cambio('listaCaja', [ocupadas, estado.mesaCaja])) return;
@@ -471,7 +454,7 @@
     if (estado.mesaCaja === null) return Promise.resolve();
     var pedida = estado.mesaCaja;
     return api('api/caja.php?mesa_id=' + pedida).then(function (d) {
-      if (estado.mesaCaja !== pedida) return; // cambió de mesa mientras tanto
+      if (estado.mesaCaja !== pedida) return;
       estado.cuenta = d;
       pintarRecibo();
     });
@@ -521,7 +504,6 @@
     });
   });
 
-  /* ---------- Refresco automático según los apartados del cargo ---------- */
   function ciclo() {
     var emp = estado.empleado;
     if (!emp) return Promise.resolve();
@@ -538,10 +520,9 @@
     });
   }
 
-  /* ---------- Arranque: ¿ya hay una sesión abierta? ---------- */
   api('api/auth.php').then(function (d) {
     if (d.empleado) entrar(d.empleado); else mostrarAuth();
   }).catch(function () {
-    mostrarAuth(); // sin servidor: el banner de conexión ya avisa
+    mostrarAuth();
   });
 })();

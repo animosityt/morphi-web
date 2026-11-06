@@ -1,7 +1,6 @@
 <?php
 require __DIR__ . '/_bootstrap.php';
 
-// POST {"mesa_id": 3, "items": [{"producto_id": 4, "cantidad": 1}, ...]}
 manejar(function () {
     metodo('POST');
     $emp = exigir_area('salon');
@@ -13,7 +12,6 @@ manejar(function () {
         throw new ApiError('No se puede enviar una comanda sin productos.', 422);
     }
 
-    // Unifica repetidos: [producto_id => cantidad total]
     $cantidades = [];
     foreach ($items as $it) {
         if (!is_array($it)) {
@@ -30,7 +28,6 @@ manejar(function () {
     }
 
     return transaccion(function (PDO $pdo) use ($mesaId, $cantidades, $emp) {
-        // Bloquea la mesa: dos mozos cargando a la vez se ponen en fila.
         $st = $pdo->prepare('SELECT numero FROM mesas WHERE id = ? FOR UPDATE');
         $st->execute([$mesaId]);
         $mesa = $st->fetch();
@@ -38,7 +35,6 @@ manejar(function () {
             throw new ApiError('La mesa no existe.', 404);
         }
 
-        // Los precios se leen de la base, nunca se confía en el navegador.
         $ids = array_keys($cantidades);
         $marcas = implode(',', array_fill(0, count($ids), '?'));
         $st = $pdo->prepare("SELECT id, precio FROM productos WHERE activo = 1 AND id IN ($marcas)");
@@ -50,7 +46,6 @@ manejar(function () {
             }
         }
 
-        // Cuenta abierta de la mesa (o se abre una nueva).
         $st = $pdo->prepare("SELECT id FROM pedidos WHERE mesa_id = ? AND estado = 'abierto' FOR UPDATE");
         $st->execute([$mesaId]);
         $pedidoId = $st->fetchColumn();

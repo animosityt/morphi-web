@@ -1,6 +1,3 @@
--- =====================================================================
--- morphi web - carga inicial (precios y mesas de ejemplo: ajustarlos)
--- =====================================================================
 USE morphi_web;
 
 INSERT INTO mesas (numero, capacidad, pos_x, pos_y) VALUES

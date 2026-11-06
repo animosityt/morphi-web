@@ -6,7 +6,6 @@ function datos_publicos(array $e): array
     return ['id' => (int) $e['id'], 'nombre' => $e['nombre'], 'usuario' => $e['usuario'], 'cargo' => $e['cargo']];
 }
 
-/** Abre la sesión del empleado (renueva el identificador para evitar fijación de sesión). */
 function iniciar_sesion(int $empleadoId): void
 {
     session_start();
@@ -16,7 +15,6 @@ function iniciar_sesion(int $empleadoId): void
 }
 
 manejar(function () {
-    // GET: ¿hay alguien logueado? (el navegador lo consulta al abrir la página)
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $e = empleado_actual();
         return ['ok' => true, 'empleado' => $e ? datos_publicos($e) : null];
@@ -36,7 +34,7 @@ manejar(function () {
         $e = $st->fetch();
 
         if (!$e || !password_verify($clave, $e['clave_hash'])) {
-            usleep(400000); // frena los intentos de adivinar contraseñas
+            usleep(400000);
             throw new ApiError('Usuario o contraseña incorrectos.', 401);
         }
         iniciar_sesion((int) $e['id']);
@@ -46,8 +44,6 @@ manejar(function () {
     if ($accion === 'registro') {
         $cargo = (string) ($in['cargo'] ?? '');
 
-        // El código va primero: quien no lo tiene no averigua nada más.
-        // Los encargados usan su propio código; el resto, el código del local.
         if ($cargo === 'encargado') {
             if (CODIGO_ENCARGADO === '') {
                 throw new ApiError('El registro de encargados está desactivado.', 403);

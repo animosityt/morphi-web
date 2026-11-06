@@ -1,17 +1,7 @@
--- =====================================================================
--- morphi web - esquema de base de datos (mysql / mariadb, xampp)
--- importar desde phpmyadmin (pestana "importar") o por consola:
---   mysql -u root < sql/01_schema.sql
--- =====================================================================
 DROP DATABASE IF EXISTS morphi_web;
 CREATE DATABASE morphi_web CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE morphi_web;
 
--- ---------------------------------------------------------------------
--- empleados: cada persona del equipo, con su cargo. define a que apartado
--- entra: mozo -> salon, cocinero -> cocina, cajero -> caja.
--- la contrasena se guarda como hash (password_hash de php), nunca en claro.
--- ---------------------------------------------------------------------
 CREATE TABLE empleados (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
   nombre      VARCHAR(60) NOT NULL,
@@ -24,11 +14,6 @@ CREATE TABLE empleados (
   UNIQUE KEY uq_empleados_usuario (usuario)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- mesas: el salon. el estado (libre/ocupada) no se guarda aca: se deduce
--- de si la mesa tiene un pedido 'abierto'. asi nunca puede quedar una
--- mesa "roja" sin consumo, ni un consumo en una mesa "verde".
--- ---------------------------------------------------------------------
 CREATE TABLE mesas (
   id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
   numero     SMALLINT UNSIGNED NOT NULL,
@@ -40,9 +25,6 @@ CREATE TABLE mesas (
   CONSTRAINT ck_mesas_capacidad CHECK (capacidad > 0)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- productos: la carta. va_a_cocina = 0 para bebidas (no pasan por cocina).
--- ---------------------------------------------------------------------
 CREATE TABLE productos (
   id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
   nombre       VARCHAR(80) NOT NULL,
@@ -54,12 +36,6 @@ CREATE TABLE productos (
   CONSTRAINT ck_productos_precio CHECK (precio >= 0)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- pedidos: una cuenta por mesa. estado: abierto -> cobrado.
--- mesa_abierta es una columna calculada: vale mesa_id mientras el pedido
--- esta abierto y null cuando se cobra. su indice unique garantiza que una
--- mesa no tenga dos pedidos abiertos a la vez.
--- ---------------------------------------------------------------------
 CREATE TABLE pedidos (
   id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
   mesa_id        INT UNSIGNED NOT NULL,
@@ -78,11 +54,6 @@ CREATE TABLE pedidos (
   CONSTRAINT fk_pedidos_cobrado_por FOREIGN KEY (cobrado_por) REFERENCES empleados (id)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- detalle_pedidos: cada linea cargada por el mozo.
--- precio_unitario es una copia del precio vigente al pedir: si cambia la
--- carta, las cuentas ya cargadas no se alteran.
--- ---------------------------------------------------------------------
 CREATE TABLE detalle_pedidos (
   id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
   pedido_id        INT UNSIGNED NOT NULL,

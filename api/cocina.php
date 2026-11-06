@@ -5,7 +5,6 @@ manejar(function () {
     $emp = exigir_area('cocina');
     $pdo = db();
 
-    // GET: cola de preparación, del más viejo al más nuevo.
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $cola = $pdo->query(
             "SELECT d.id AS detalle_id, m.numero AS mesa, pr.nombre, pr.categoria, d.cantidad,
@@ -22,7 +21,6 @@ manejar(function () {
         return ['ok' => true, 'cola' => $cola];
     }
 
-    // POST {"detalle_id": 12}: botón "Listo".
     metodo('POST');
     $in = leer_json();
     $detalleId = entero_positivo($in['detalle_id'] ?? null, 'detalle_id');
@@ -35,7 +33,6 @@ manejar(function () {
         if (!$existe->fetchColumn()) {
             throw new ApiError('Ese plato no existe.', 404);
         }
-        // Ya estaba listo (otro cocinero lo marcó): no es un error.
     }
     return ['ok' => true];
 });

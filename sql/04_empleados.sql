@@ -1,11 +1,3 @@
--- =====================================================================
--- morphi web - migracion para bases que ya estaban instaladas
--- (agrega empleados/cargos y registra que empleado hizo cada accion).
---
--- ejecutar una sola vez, con la base morphi_web ya creada.
--- no borra mesas, productos ni pedidos existentes.
--- si instalas desde cero con 01_schema.sql, este archivo no hace falta.
--- =====================================================================
 USE morphi_web;
 
 CREATE TABLE empleados (
